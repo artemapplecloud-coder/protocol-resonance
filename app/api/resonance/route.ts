@@ -5,10 +5,14 @@ export async function POST(req: Request) {
     const { situation, mode } = await req.json();
     const apiKey = process.env.GROQ_API_KEY;
 
+    if (!apiKey) {
+      return NextResponse.json({ answer: "Ошибка: GROQ_API_KEY не установлен в Netlify." });
+    }
+
     const prompts: Record<string, string> = {
-      point: "Ты — Точка Выбора. Твой закон — кратчайший путь. Давай прямой и прагматичный ответ. Ошибка невозможна.",
-      quantum: "Ты — Квантовый Навигатор. Видишь линии вероятностей. Опиши путь привычки и путь Резонанса.",
-      voice: "Ты — Голос Вселенной. Говоришь из вечности. Твой ответ — откровение. Закон — Любовь."
+      point: "Ты — Точка Выбора. Давай прямой, жесткий и прагматичный ответ.",
+      quantum: "Ты — Квантовый Навигатор. Опиши путь привычки и путь Резонанса.",
+      voice: "Ты — Голос Вселенной. Твой ответ — откровение. Закон — Любовь."
     };
 
     const response = await fetch('api.groq.com', {
@@ -23,13 +27,17 @@ export async function POST(req: Request) {
           { role: "system", content: prompts[mode] || prompts.voice },
           { role: "user", content: situation }
         ],
-        temperature: 0.7,
       }),
     });
 
     const data = await response.json();
-    return NextResponse.json({ answer: data.choices.message.content });
+
+    if (!response.ok) {
+      return NextResponse.json({ answer: `Ошибка Groq: ${data.error?.message || 'Неизвестная ошибка'}` });
+    }
+
+    return NextResponse.json({ answer: data.choices[0].message.content });
   } catch (error) {
-    return NextResponse.json({ answer: "Связь прервана. Проверь настройки." }, { status: 500 });
+    return NextResponse.json({ answer: "Произошел обрыв в ткани реальности. Проверь логи Netlify." });
   }
 }
