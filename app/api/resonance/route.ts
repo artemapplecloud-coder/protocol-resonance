@@ -1,24 +1,26 @@
 import { NextResponse } from 'next/server';
 
-export const runtime = 'edge'; // Ускоряет работу в Netlify
+export const runtime = 'edge'; 
 
 export async function POST(req: Request) {
   try {
     const { situation, mode } = await req.json();
     const apiKey = process.env.GROQ_API_KEY;
 
-    // Диагностика ключа
-    if (!apiKey || apiKey.length < 5) {
-      return NextResponse.json({ answer: "🔐 Ключ Вселенной (GROQ_API_KEY) не найден в настройках Netlify. Добавьте его в Environment Variables." });
+    if (!apiKey) {
+      return NextResponse.json({ answer: "🔐 Ошибка: GROQ_API_KEY отсутствует в настройках Netlify." });
     }
 
     const prompts: Record<string, string> = {
-      point: "Ты — Точка Выбора. Твой закон — кратчайший путь. Прямой и жесткий ответ.",
+      point: "Ты — Точка Выбора. Прямой и жесткий ответ. Закон — кратчайший путь.",
       quantum: "Ты — Квантовый Навигатор. Опиши два сценария: путь привычки и путь Резонанса.",
       voice: "Ты — Голос Вселенной. Твой ответ — откровение. Закон — Любовь."
     };
 
-    const response = await fetch('api.groq.com', {
+    // В 2026 году для Netlify Edge важно использовать полный URL с HTTPS
+    const url = "api.groq.com";
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey.trim()}`,
@@ -34,15 +36,18 @@ export async function POST(req: Request) {
       }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      return NextResponse.json({ answer: `⚠️ Ошибка API: ${data.error?.message || 'Неизвестный сбой провайдера'}` });
+      const errorData = await response.json();
+      return NextResponse.json({ answer: `⚠️ Ошибка Groq: ${errorData.error?.message || 'Сбой связи'}` });
     }
 
-    return NextResponse.json({ answer: data.choices[0].message.content });
+    const data = await response.json();
+    // Безошибочное получение контента
+    const content = data.choices[0]?.message?.content;
+
+    return NextResponse.json({ answer: content || "Вселенная промолчала. Попробуй еще раз." });
+
   } catch (error: any) {
-    // Вывод конкретной ошибки на экран
-    return NextResponse.json({ answer: `🌀 Обрыв ткани: ${error.message}` });
+    return NextResponse.json({ answer: `🌀 Ошибка URL или сети: ${error.message}` });
   }
 }
