@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
-export const runtime = 'edge'; 
+// Убираем export const runtime = 'edge'; 
+// Это позволит Netlify использовать стандартную Node.js среду
 
 export async function POST(req: Request) {
   try {
@@ -8,7 +9,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.GROQ_API_KEY;
 
     if (!apiKey) {
-      return NextResponse.json({ answer: "🔐 Ошибка: GROQ_API_KEY не найден в переменных Netlify." });
+      return NextResponse.json({ answer: "🔐 Ошибка: GROQ_API_KEY не задан в настройках Netlify." });
     }
 
     const prompts: Record<string, string> = {
@@ -17,10 +18,10 @@ export async function POST(req: Request) {
       voice: "Ты — Голос Вселенной. Твой ответ — откровение. Закон — Любовь."
     };
 
-    // Явное создание объекта URL для обхода ошибки парсинга
-    const endpoint = new URL("api.groq.com");
+    // Используем простую строку без конструктора URL
+    const url = "api.groq.com";
 
-    const response = await fetch(endpoint.href, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey.trim()}`,
@@ -36,17 +37,17 @@ export async function POST(req: Request) {
       }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      return NextResponse.json({ answer: `⚠️ Ошибка Groq: ${errorData.error?.message || 'Сбой'}` });
+      return NextResponse.json({ answer: `⚠️ Ошибка Groq: ${data.error?.message || 'Сбой API'}` });
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    const content = data.choices[0]?.message?.content;
 
-    return NextResponse.json({ answer: content || "Вселенная пуста. Попробуй снова." });
+    return NextResponse.json({ answer: content || "Вселенная промолчала." });
 
   } catch (error: any) {
-    return NextResponse.json({ answer: `🌀 Системный сбой: ${error.message}` });
+    return NextResponse.json({ answer: `🌀 Сбой системы: ${error.message}` });
   }
 }
