@@ -11,22 +11,24 @@ export default function MirrorPage() {
     setLoading(true);
     setResponse('');
     try {
-      const res = await fetch('/api/resonance', {
+      // Исправленный Fetch с полным путем
+      const res = await fetch(`${window.location.origin}/api/resonance`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json' 
+        },
         body: JSON.stringify({ message: input }),
       });
       
       const data = await res.json();
       
       if (!res.ok) {
-        // Если сервер вернул ошибку (404, 500 и т.д.)
-        setResponse(`Ошибка сервера: ${res.status}. Детали: ${JSON.stringify(data)}`);
+        setResponse(`Ошибка сервера: ${res.status}. ${data.text || ''}`);
       } else {
-        setResponse(data.text || "Пустой ответ от системы.");
+        setResponse(data.text || "Пустой ответ.");
       }
     } catch (e: any) {
-      // Если запрос вообще не дошел до сервера
       setResponse(`Критический сбой: ${e.message}`);
     }
     setLoading(false);
@@ -38,8 +40,8 @@ export default function MirrorPage() {
         <h1 style={{ fontSize: '1.5rem', fontWeight: '200', letterSpacing: '0.4em', textTransform: 'uppercase', opacity: 0.8 }}>Protocol Resonance</h1>
         
         {response && (
-          <div style={{ fontSize: '0.9rem', color: '#ff4d4d', padding: '15px', border: '1px solid #331111', background: '#110000', borderRadius: '5px' }}>
-            <strong>ЛОГ:</strong> {response}
+          <div style={{ fontSize: '0.9rem', color: response.includes('Ошибка') || response.includes('сбой') ? '#ff4d4d' : '#00ff00', padding: '15px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', borderRadius: '5px' }}>
+            {response}
           </div>
         )}
 
@@ -47,8 +49,9 @@ export default function MirrorPage() {
           <input 
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && syncResonance()}
             placeholder="Введи сигнал..."
-            style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid #333', color: 'white', padding: '12px', outline: 'none', textAlign: 'center' }}
+            style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid #333', color: 'white', padding: '12px', outline: 'none', textAlign: 'center', fontSize: '16px' }} 
           />
           <button 
             onClick={syncResonance}
