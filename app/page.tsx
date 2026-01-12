@@ -7,7 +7,7 @@ export default function ResonanceMirror() {
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Предотвращает ошибки гидратации на iPhone
+  // Исправляет ошибки отображения на мобильных устройствах
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -27,12 +27,12 @@ export default function ResonanceMirror() {
       const data = await res.json();
       
       if (res.ok) {
-        setResponse(data.text || "Сигнал принят. Резонанс установлен.");
+        setResponse(data.text || "Резонанс установлен. Сигнал чист.");
       } else {
-        setResponse(`Ошибка ${res.status}: ${JSON.stringify(data)}`);
+        setResponse(`Ошибка ${res.status}: Попробуйте позже.`);
       }
     } catch (e: any) {
-      setResponse(`Сбой канала связи: ${e.message}`);
+      setResponse(`Сбой связи: Проверьте настройки API`);
     } finally {
       setLoading(false);
     }
@@ -49,57 +49,50 @@ export default function ResonanceMirror() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontFamily: 'sans-serif',
       padding: '20px',
       textAlign: 'center'
     }}>
       <div style={{ maxWidth: '500px', width: '100%', display: 'flex', flexDirection: 'column', gap: '40px' }}>
         
         <h1 style={{ 
-          fontSize: '1rem', 
+          fontSize: '1.2rem', 
           fontWeight: '200', 
-          letterSpacing: '0.6em', 
+          letterSpacing: '0.5em', 
           textTransform: 'uppercase',
-          opacity: 0.7,
-          margin: 0
+          opacity: 0.7 
         }}>
           Protocol Resonance
         </h1>
 
         <div style={{
-          minHeight: '140px',
+          minHeight: '120px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '25px',
+          padding: '20px',
           border: '1px solid rgba(255,255,255,0.1)',
-          background: 'rgba(255,255,255,0.03)',
-          borderRadius: '2px'
+          background: 'rgba(255,255,255,0.02)',
+          borderRadius: '4px'
         }}>
           {response ? (
-            <p style={{ 
-              fontSize: '1.1rem', 
-              fontStyle: 'italic', 
-              lineHeight: '1.6', 
-              color: response.includes('Ошибка') ? '#ff4d4d' : '#00ffd5',
-              margin: 0 
-            }}>
+            <p style={{ fontSize: '1.1rem', fontStyle: 'italic', lineHeight: '1.6', color: '#00ffd5' }}>
               {response}
             </p>
           ) : (
-            <p style={{ fontSize: '0.8rem', opacity: 0.3, letterSpacing: '0.2em', margin: 0 }}>
-              {loading ? 'СИНХРОНИЗАЦИЯ...' : 'ОЖИДАНИЕ ИМПУЛЬСА'}
+            <p style={{ fontSize: '0.8rem', opacity: 0.4, letterSpacing: '0.1em' }}>
+              {loading ? 'СИНХРОНИЗАЦИЯ...' : 'ОЖИДАНИЕ СИГНАЛА'}
             </p>
           )}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <input 
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && syncResonance()}
-            placeholder="Введите ваш запрос..."
+            placeholder="Введите запрос..."
             style={{ 
               width: '100%', 
               background: 'transparent', 
@@ -118,26 +111,25 @@ export default function ResonanceMirror() {
             onClick={syncResonance}
             disabled={loading}
             style={{ 
-              padding: '20px', 
+              padding: '18px', 
               background: 'transparent', 
               border: '1px solid #444', 
               color: 'white', 
               textTransform: 'uppercase', 
               fontSize: '11px', 
-              letterSpacing: '0.4em',
-              cursor: loading ? 'default' : 'pointer',
-              opacity: loading ? 0.4 : 1
+              letterSpacing: '0.3em',
+              cursor: 'pointer',
+              opacity: loading ? 0.5 : 1
             }}
           >
             {loading ? 'СВЯЗЬ...' : 'УСТАНОВИТЬ РЕЗОНАНС'}
           </button>
         </div>
 
-        <p style={{ marginTop: '20px', fontSize: '8px', opacity: 0.2, letterSpacing: '0.3em' }}>
-          12.01.2026 | ZERO POINT CORE
+        <p style={{ marginTop: '20px', fontSize: '9px', opacity: 0.2, letterSpacing: '0.2em' }}>
+          12.01.2026 | STABLE BUILD
         </p>
       </div>
     </main>
   );
 }
-
