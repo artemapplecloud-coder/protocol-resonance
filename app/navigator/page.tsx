@@ -61,11 +61,8 @@ export default function NavigatorPage() {
           fontSize: '1.1rem',
           lineHeight: '1.6',
           outline: 'none',
-          marginBottom: '30px',
-          transition: 'border-color 0.3s'
+          marginBottom: '30px'
         }}
-        onFocus={(e) => e.target.style.borderColor = '#444'}
-        onBlur={(e) => e.target.style.borderColor = '#222'}
       />
 
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '800px' }}>
@@ -77,7 +74,7 @@ export default function NavigatorPage() {
       </div>
 
       {loading && (
-        <div style={{ marginTop: '50px', color: '#666', letterSpacing: '3px', fontSize: '0.9rem', animate: 'pulse 2s infinite' }}>
+        <div style={{ marginTop: '50px', color: '#666', letterSpacing: '3px', fontSize: '0.9rem' }}>
           Считывание Квантовых Линий...
         </div>
       )}
@@ -122,7 +119,6 @@ function btnStyle(active: boolean, specialColor?: string) {
     textTransform: 'uppercase' as const,
     fontSize: '0.75rem',
     letterSpacing: '2px',
-    transition: 'all 0.4s ease',
     opacity: active ? 1 : 0.6
   };
 }
